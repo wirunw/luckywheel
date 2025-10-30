@@ -457,24 +457,213 @@
             transform: translateY(-2px);
         }
 
-        @media (max-width: 400px) {
-            .preset-button {
-                font-size: 0.75em;
-                padding: 8px 6px;
-            }
-        }
-
         @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .header {
+                padding: 15px 20px;
+                margin-bottom: 20px;
+            }
+
             .header h1 {
-                font-size: 1.8em;
+                font-size: 1.5em;
+            }
+
+            .header p {
+                font-size: 0.9em;
+            }
+
+            .logo {
+                width: 45px;
+                height: 45px;
             }
 
             .main-container {
                 flex-direction: column;
+                gap: 20px;
+            }
+
+            .wheel-container {
+                padding: 20px;
+                width: 100%;
+            }
+
+            #wheelCanvas {
+                width: 300px !important;
+                height: 300px !important;
+            }
+
+            .pointer {
+                border-left: 15px solid transparent;
+                border-right: 15px solid transparent;
+                border-top: 30px solid #ff4444;
+            }
+
+            .spin-button {
+                font-size: 1em;
+                padding: 12px 30px;
             }
 
             .control-panel {
                 max-width: 100%;
+                padding: 20px;
+            }
+
+            .preset-buttons {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .section-title {
+                font-size: 0.85em;
+            }
+
+            .input-group {
+                flex-direction: column;
+            }
+
+            .input-group input {
+                font-size: 0.9em;
+                padding: 10px;
+            }
+
+            .add-button {
+                padding: 10px 20px;
+                font-size: 0.9em;
+                width: 100%;
+            }
+
+            .textarea-group textarea {
+                font-size: 0.9em;
+            }
+
+            .bulk-add-button {
+                font-size: 0.9em;
+            }
+
+            .items-list {
+                max-height: 200px;
+            }
+
+            .item {
+                padding: 10px;
+                font-size: 0.9em;
+            }
+
+            .history-panel {
+                padding: 15px;
+            }
+
+            .history-list {
+                max-height: 150px;
+            }
+
+            .history-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+
+            .footer {
+                padding: 15px;
+                font-size: 0.9em;
+            }
+
+            .result-modal .result-content {
+                padding: 30px 20px;
+                margin: 20px;
+                max-width: 90%;
+            }
+
+            .winner-name {
+                font-size: 1.8em;
+                padding: 15px;
+            }
+
+            .result-content h2 {
+                font-size: 1.5em;
+            }
+
+            .close-button {
+                padding: 10px 20px;
+                font-size: 0.95em;
+            }
+
+            .image-upload-section {
+                padding: 10px;
+            }
+
+            .center-image-preview {
+                width: 80px;
+                height: 80px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 5px;
+            }
+
+            .header {
+                padding: 10px 15px;
+            }
+
+            .header h1 {
+                font-size: 1.2em;
+                gap: 8px;
+            }
+
+            .logo {
+                width: 35px;
+                height: 35px;
+            }
+
+            #wheelCanvas {
+                width: 260px !important;
+                height: 260px !important;
+            }
+
+            .preset-buttons {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 6px;
+            }
+
+            .preset-button {
+                font-size: 0.7em;
+                padding: 8px 4px;
+            }
+
+            .winner-name {
+                font-size: 1.5em;
+                padding: 12px;
+            }
+
+            .result-content h2 {
+                font-size: 1.3em;
+            }
+
+            .control-panel {
+                padding: 15px;
+            }
+
+            .control-panel h2 {
+                font-size: 1.2em;
+            }
+        }
+
+        @media (max-width: 360px) {
+            #wheelCanvas {
+                width: 240px !important;
+                height: 240px !important;
+            }
+
+            .header h1 {
+                font-size: 1.1em;
+            }
+
+            .winner-name {
+                font-size: 1.3em;
             }
         }
     </style>
@@ -599,12 +788,43 @@
 
         const colors = ['#667eea', '#764ba2', '#f093fb', '#4facfe', '#43e97b', '#fa709a', '#feca57', '#48dbfb'];
 
+        // Responsive canvas sizing
+        function updateCanvasSize() {
+            const container = document.querySelector('.wheel-container');
+            const maxSize = Math.min(container.offsetWidth - 60, 400);
+
+            if (window.innerWidth <= 360) {
+                canvas.width = 240;
+                canvas.height = 240;
+            } else if (window.innerWidth <= 480) {
+                canvas.width = 260;
+                canvas.height = 260;
+            } else if (window.innerWidth <= 768) {
+                canvas.width = 300;
+                canvas.height = 300;
+            } else {
+                canvas.width = 400;
+                canvas.height = 400;
+            }
+
+            drawWheel();
+        }
+
         // Initialize Audio Context
         function initAudio() {
             if (!audioContext) {
                 audioContext = new (window.AudioContext || window.webkitAudioContext)();
             }
         }
+
+        // Update canvas size on resize
+        let resizeTimer;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                updateCanvasSize();
+            }, 250);
+        });
 
         // Play spinning sound
         function playSpinSound() {
@@ -676,7 +896,7 @@
         function drawWheel() {
             const centerX = canvas.width / 2;
             const centerY = canvas.height / 2;
-            const radius = 180;
+            const radius = (canvas.width / 2) * 0.9; // 90% of canvas radius
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -722,10 +942,14 @@
                 const itemName = typeof item === 'string' ? item : item.name;
                 const itemImage = (typeof item === 'object' && item.image) ? item.image : null;
 
+                // Responsive font and image sizing
+                const baseFontSize = Math.max(10, radius / 12);
+                const imageSize = Math.max(25, radius / 4.5);
+
                 // Draw image if exists
                 if (itemImage) {
                     ctx.save();
-                    const imgSize = 40;
+                    const imgSize = imageSize;
                     const imgX = radius * 0.65 - imgSize / 2;
                     const imgY = -imgSize / 2 - 10;
 
@@ -745,14 +969,14 @@
 
                     // Draw text below image
                     ctx.fillStyle = 'white';
-                    ctx.font = 'bold 12px Arial';
+                    ctx.font = `bold ${baseFontSize * 0.8}px Arial`;
                     ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
                     ctx.shadowBlur = 3;
                     ctx.fillText(itemName, radius * 0.65, imgY + imgSize + 15);
                 } else {
                     // Draw text only
                     ctx.fillStyle = 'white';
-                    ctx.font = 'bold 16px Arial';
+                    ctx.font = `bold ${baseFontSize}px Arial`;
                     ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
                     ctx.shadowBlur = 3;
                     ctx.fillText(itemName, radius * 0.65, 5);
@@ -1157,6 +1381,7 @@
 
         // Initialize
         updateItemsList();
+        updateCanvasSize(); // Set initial canvas size based on screen
         drawWheel();
     </script>
 </body>

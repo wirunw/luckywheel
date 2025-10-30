@@ -79,6 +79,19 @@
             position: relative;
         }
 
+        .wheel-title {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 20px;
+            text-align: center;
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 50px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            min-width: 250px;
+        }
+
         #wheelCanvas {
             border-radius: 50%;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
@@ -490,6 +503,12 @@
                 width: 100%;
             }
 
+            .wheel-title {
+                font-size: 1.3em;
+                padding: 12px 20px;
+                min-width: 200px;
+            }
+
             #wheelCanvas {
                 width: 300px !important;
                 height: 300px !important;
@@ -619,6 +638,12 @@
                 height: 35px;
             }
 
+            .wheel-title {
+                font-size: 1.1em;
+                padding: 10px 15px;
+                min-width: 180px;
+            }
+
             #wheelCanvas {
                 width: 260px !important;
                 height: 260px !important;
@@ -653,6 +678,12 @@
         }
 
         @media (max-width: 360px) {
+            .wheel-title {
+                font-size: 1em;
+                padding: 8px 12px;
+                min-width: 160px;
+            }
+
             #wheelCanvas {
                 width: 240px !important;
                 height: 240px !important;
@@ -679,6 +710,7 @@
 
     <div class="main-container">
         <div class="wheel-container">
+            <div class="wheel-title" id="wheelTitle">🍜 มื้อนี้กินอะไรดี</div>
             <div class="pointer"></div>
             <canvas id="wheelCanvas" width="400" height="400"></canvas>
             <button class="spin-button" id="spinButton">🎯 หมุนวงล้อ</button>
@@ -696,6 +728,8 @@
 
             <div class="preset-buttons">
                 <button class="preset-button" onclick="loadPreset('food')">🍜 อาหาร</button>
+                <button class="preset-button" onclick="loadPreset('drinks')">☕ เครื่องดื่ม</button>
+                <button class="preset-button" onclick="loadPreset('travel')">✈️ ที่เที่ยว</button>
                 <button class="preset-button" onclick="loadPreset('coinflip')">🪙 หัว-ก้อย</button>
                 <button class="preset-button" onclick="loadPreset('numbers')">🔢 เลขดวง 0-9</button>
                 <button class="preset-button" onclick="loadPreset('lottery')">🎰 เลขสุ่ม 2 ตัว</button>
@@ -1281,6 +1315,10 @@
             }
         }
 
+        function updateTitle(title) {
+            document.getElementById('wheelTitle').textContent = title;
+        }
+
         function loadPreset(type) {
             switch(type) {
                 case 'food':
@@ -1301,36 +1339,76 @@
                         {name: 'ไก่ทอด', image: null},
                         {name: 'สลัด', image: null}
                     ];
+                    updateTitle('🍜 มื้อนี้กินอะไรดี');
+                    break;
+                case 'drinks':
+                    items = [
+                        {name: 'เอสเปรสโซ่', image: null},
+                        {name: 'ลาเต้', image: null},
+                        {name: 'คาปูชิโน่', image: null},
+                        {name: 'อเมริกาโน่', image: null},
+                        {name: 'มอคค่า', image: null},
+                        {name: 'ชาเขียว', image: null},
+                        {name: 'ชานม', image: null},
+                        {name: 'น้ำส้ม', image: null},
+                        {name: 'สมูทตี้', image: null},
+                        {name: 'โกโก้', image: null},
+                        {name: 'โซดา', image: null},
+                        {name: 'น้ำผลไม้', image: null}
+                    ];
+                    updateTitle('☕ วันนี้ดื่มอะไรดี');
+                    break;
+                case 'travel':
+                    items = [
+                        {name: 'เชียงใหม่', image: null},
+                        {name: 'ภูเก็ต', image: null},
+                        {name: 'กระบี่', image: null},
+                        {name: 'พัทยา', image: null},
+                        {name: 'หัวหิน', image: null},
+                        {name: 'เกาะช้าง', image: null},
+                        {name: 'เกาะสมุย', image: null},
+                        {name: 'อยุธยา', image: null},
+                        {name: 'สุโขทัย', image: null},
+                        {name: 'เขาใหญ่', image: null},
+                        {name: 'ปาย', image: null},
+                        {name: 'กาญจนบุรี', image: null}
+                    ];
+                    updateTitle('✈️ วันหยุดนี้ไปไหนดี');
                     break;
                 case 'coinflip':
                     items = [
                         {name: 'หัว 👑', image: null},
                         {name: 'ก้อย 🦅', image: null}
                     ];
+                    updateTitle('🪙 โยนเหรียญ');
                     break;
                 case 'yesno':
                     items = [
                         {name: 'ใช่ ✅', image: null},
                         {name: 'ไม่ใช่ ❌', image: null}
                     ];
+                    updateTitle('❓ ตัดสินใจ: ใช่หรือไม่ใช่');
                     break;
                 case 'numbers':
                     items = [];
                     for (let i = 0; i <= 9; i++) {
                         items.push({name: i.toString(), image: null});
                     }
+                    updateTitle('🔢 สุ่มเลขดวง 0-9');
                     break;
                 case 'lottery':
                     items = [];
                     for (let i = 0; i <= 99; i++) {
                         items.push({name: i.toString().padStart(2, '0'), image: null});
                     }
+                    updateTitle('🎰 สุ่มเลข 2 ตัว');
                     break;
                 case 'lucky100':
                     items = [];
                     for (let i = 1; i <= 100; i++) {
                         items.push({name: i.toString(), image: null});
                     }
+                    updateTitle('💯 สุ่มเลข 1-100');
                     break;
                 case 'colors':
                     items = [
@@ -1343,6 +1421,7 @@
                         {name: 'ม่วง 🟣', image: null},
                         {name: 'ชมพู 🩷', image: null}
                     ];
+                    updateTitle('🎨 สุ่มสี');
                     break;
                 case 'zodiac':
                     items = [
@@ -1359,6 +1438,7 @@
                         {name: 'กุมภ์ ♒', image: null},
                         {name: 'มีน ♓', image: null}
                     ];
+                    updateTitle('♈ สุ่มราศี');
                     break;
                 case 'days':
                     items = [
@@ -1370,6 +1450,7 @@
                         {name: 'เสาร์ 💜', image: null},
                         {name: 'อาทิตย์ ❤️', image: null}
                     ];
+                    updateTitle('📅 สุ่มวัน');
                     break;
             }
             updateItemsList();

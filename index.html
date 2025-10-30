@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>วงล้อลุ้นโชค - Lucky Wheel</title>
+    <link rel="icon" type="image/png" href="https://i.postimg.cc/yY1rPJ07/wirun-facbook.png">
+    <link rel="shortcut icon" type="image/png" href="https://i.postimg.cc/yY1rPJ07/wirun-facbook.png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            color: #333;
+        }
+
+        .header {
+            background: white;
+            padding: 20px 40px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            margin-bottom: 30px;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .logo {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #667eea;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .main-container {
+            display: flex;
+            gap: 30px;
+            width: 100%;
+            max-width: 1200px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .wheel-container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        #wheelCanvas {
+            border-radius: 50%;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        #wheelCanvas:hover {
+            transform: scale(1.02);
+        }
+
+        .pointer {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-top: 40px solid #ff4444;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+            z-index: 10;
+        }
+
+        .spin-button {
+            margin-top: 20px;
+            padding: 15px 40px;
+            font-size: 1.2em;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s;
+        }
+
+        .spin-button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .spin-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .control-panel {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            flex: 1;
+            min-width: 300px;
+            max-width: 400px;
+        }
+
+        .control-panel h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .input-group input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .textarea-group {
+            margin-bottom: 20px;
+        }
+
+        .textarea-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+            resize: vertical;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .textarea-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .bulk-add-button {
+            width: 100%;
+            padding: 12px 24px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .bulk-add-button:hover {
+            background: #2563eb;
+            transform: translateY(-1px);
+        }
+
+        .section-title {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .history-panel {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .history-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            padding: 10px;
+            margin-bottom: 8px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .history-time {
+            font-size: 0.85em;
+            color: #666;
+        }
+
+        .clear-history-button {
+            padding: 8px 16px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .clear-history-button:hover {
+            background: #dc2626;
+        }
+
+        .image-upload-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .image-upload-section input[type="file"] {
+            margin-top: 8px;
+        }
+
+        .center-image-preview {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        .item-image-icon {
+            width: 30px;
+            height: 30px;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+
+        .item-content {
+            display: flex;
+            align-items: center;
+        }
+
+        .add-button {
+            padding: 12px 24px;
+            background: #10b981;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .add-button:hover {
+            background: #059669;
+            transform: translateY(-1px);
+        }
+
+        .items-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+
+        .item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            margin-bottom: 8px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            transition: all 0.3s;
+        }
+
+        .item:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        .delete-button {
+            padding: 6px 12px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s;
+        }
+
+        .delete-button:hover {
+            background: #dc2626;
+        }
+
+        .result-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .result-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: popup 0.3s ease-out;
+        }
+
+        @keyframes popup {
+            from {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .result-content h2 {
+            color: #667eea;
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+
+        .winner-name {
+            font-size: 2.5em;
+            color: #764ba2;
+            font-weight: bold;
+            margin: 20px 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+            border-radius: 10px;
+        }
+
+        .close-button {
+            padding: 12px 30px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            margin-top: 20px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .close-button:hover {
+            background: #764ba2;
+        }
+
+        .footer {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            margin-top: 30px;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .footer p {
+            color: #666;
+            margin: 5px 0;
+        }
+
+        .footer .creator {
+            color: #667eea;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .preset-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .preset-button {
+            padding: 10px 8px;
+            background: #8b5cf6;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8em;
+            transition: all 0.3s;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .preset-button:hover {
+            background: #7c3aed;
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 400px) {
+            .preset-button {
+                font-size: 0.75em;
+                padding: 8px 6px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .main-container {
+                flex-direction: column;
+            }
+
+            .control-panel {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>
+            <img src="https://i.postimg.cc/yY1rPJ07/wirun-facbook.png" alt="Wirun Logo" class="logo">
+            🎰 วงล้อลุ้นโชค 🎰
+        </h1>
+        <p>สุ่มเลือกอาหาร เลขดวง สี และอื่นๆ อย่างสนุกสนานด้วยวงล้อลุ้นโชค</p>
+    </div>
+
+    <div class="main-container">
+        <div class="wheel-container">
+            <div class="pointer"></div>
+            <canvas id="wheelCanvas" width="400" height="400"></canvas>
+            <button class="spin-button" id="spinButton">🎯 หมุนวงล้อ</button>
+            <button class="spin-button" id="soundToggle" onclick="toggleSound()" style="margin-top: 10px; background: #10b981;">🔊 เสียง: เปิด</button>
+        </div>
+
+        <div class="control-panel">
+            <h2>⚙️ จัดการรายการ</h2>
+
+            <div class="image-upload-section">
+                <div class="section-title">🖼️ รูปภาพกลางวงล้อ:</div>
+                <input type="file" id="centerImageInput" accept="image/*" onchange="uploadCenterImage(event)">
+                <img id="centerImagePreview" class="center-image-preview" style="display: none;">
+            </div>
+
+            <div class="preset-buttons">
+                <button class="preset-button" onclick="loadPreset('food')">🍜 อาหาร</button>
+                <button class="preset-button" onclick="loadPreset('coinflip')">🪙 หัว-ก้อย</button>
+                <button class="preset-button" onclick="loadPreset('numbers')">🔢 เลขดวง 0-9</button>
+                <button class="preset-button" onclick="loadPreset('lottery')">🎰 เลขสุ่ม 2 ตัว</button>
+                <button class="preset-button" onclick="loadPreset('lucky100')">💯 เลข 1-100</button>
+                <button class="preset-button" onclick="loadPreset('colors')">🎨 สี</button>
+                <button class="preset-button" onclick="loadPreset('zodiac')">♈ ราศี</button>
+                <button class="preset-button" onclick="loadPreset('days')">📅 วัน</button>
+                <button class="preset-button" onclick="loadPreset('yesno')">❓ ใช่/ไม่ใช่</button>
+            </div>
+
+            <div class="section-title">เพิ่มรายการทีละรายการ:</div>
+            <div class="input-group">
+                <input type="text" id="itemInput" placeholder="ใส่รายการ..." onkeypress="handleKeyPress(event)">
+                <button class="add-button" onclick="addItem()">เพิ่ม</button>
+            </div>
+
+            <div class="image-upload-section">
+                <div class="section-title">📷 รูปภาพสำหรับรายการที่เพิ่ม:</div>
+                <input type="file" id="itemImageInput" accept="image/*">
+            </div>
+
+            <div class="textarea-group">
+                <div class="section-title">📋 วางรายการหลายรายการ (จาก Excel):</div>
+                <textarea id="bulkInput" rows="5" placeholder="วางรายการที่นี่... (แต่ละบรรทัด หรือคั่นด้วย comma/tab)&#10;ตัวอย่าง:&#10;ข้าวผัด&#10;ผัดไทย&#10;ต้มยำกุ้ง"></textarea>
+                <button class="bulk-add-button" onclick="addBulkItems()">📥 เพิ่มรายการทั้งหมด</button>
+            </div>
+
+            <div class="items-list" id="itemsList"></div>
+        </div>
+    </div>
+
+    <div class="history-panel">
+        <h2>📊 ประวัติผลการสุ่ม</h2>
+        <div class="history-list" id="historyList">
+            <p style="color: #999; text-align: center;">ยังไม่มีประวัติการสุ่ม</p>
+        </div>
+        <button class="clear-history-button" onclick="clearHistory()">🗑️ ล้างประวัติ</button>
+    </div>
+
+    <div class="footer">
+        <p class="creator">🎨 สร้างสรรค์โดย Wirun Wetsiri</p>
+        <p>🌐 <a href="https://www.pharmconnection.net" target="_blank" style="color: #667eea; text-decoration: none;">www.pharmconnection.net</a></p>
+        <p>© 2025 Lucky Wheel Game | วงล้อลุ้นโชค</p>
+    </div>
+
+    <div class="result-modal" id="resultModal">
+        <div class="result-content">
+            <h2>🎉 ผลลัพธ์ 🎉</h2>
+            <div class="winner-name" id="winnerName"></div>
+            <div style="display: flex; gap: 10px; margin-top: 20px; justify-content: center;">
+                <button class="close-button" onclick="removeWinnerAndClose()" style="background: #ef4444;">🗑️ ลบรายการนี้</button>
+                <button class="close-button" onclick="closeModal()">✅ เสร็จสิ้น</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('wheelCanvas');
+        const ctx = canvas.getContext('2d');
+        const spinButton = document.getElementById('spinButton');
+        const itemInput = document.getElementById('itemInput');
+        const itemsList = document.getElementById('itemsList');
+        const resultModal = document.getElementById('resultModal');
+        const winnerName = document.getElementById('winnerName');
+
+        let items = [
+            {name: 'ข้าวผัด', image: null},
+            {name: 'ผัดไทย', image: null},
+            {name: 'ต้มยำกุ้ง', image: null},
+            {name: 'ส้มตำ', image: null},
+            {name: 'ข้าวมันไก่', image: null},
+            {name: 'ก๋วยเตี๋ยว', image: null},
+            {name: 'แกงเขียวหวาน', image: null},
+            {name: 'ผัดกะเพรา', image: null},
+            {name: 'พิซซ่า', image: null},
+            {name: 'สเต็กเนื้อ', image: null},
+            {name: 'สปาเก็ตตี้', image: null},
+            {name: 'ซูชิ', image: null},
+            {name: 'เบอร์เกอร์', image: null},
+            {name: 'ไก่ทอด', image: null},
+            {name: 'สลัด', image: null}
+        ];
+        let currentRotation = 0;
+        let isSpinning = false;
+        let centerImage = null;
+        let spinHistory = [];
+        let lastWinnerIndex = -1;
+        let soundEnabled = true;
+        let audioContext = null;
+
+        const colors = ['#667eea', '#764ba2', '#f093fb', '#4facfe', '#43e97b', '#fa709a', '#feca57', '#48dbfb'];
+
+        // Initialize Audio Context
+        function initAudio() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        // Play spinning sound
+        function playSpinSound() {
+            if (!soundEnabled) return;
+            initAudio();
+
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(400, audioContext.currentTime + 0.1);
+
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.1);
+        }
+
+        // Play win sound
+        function playWinSound() {
+            if (!soundEnabled) return;
+            initAudio();
+
+            // First note
+            const osc1 = audioContext.createOscillator();
+            const gain1 = audioContext.createGain();
+            osc1.connect(gain1);
+            gain1.connect(audioContext.destination);
+            osc1.frequency.value = 523.25; // C5
+            gain1.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gain1.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+            osc1.start(audioContext.currentTime);
+            osc1.stop(audioContext.currentTime + 0.3);
+
+            // Second note
+            const osc2 = audioContext.createOscillator();
+            const gain2 = audioContext.createGain();
+            osc2.connect(gain2);
+            gain2.connect(audioContext.destination);
+            osc2.frequency.value = 659.25; // E5
+            gain2.gain.setValueAtTime(0.3, audioContext.currentTime + 0.15);
+            gain2.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.45);
+            osc2.start(audioContext.currentTime + 0.15);
+            osc2.stop(audioContext.currentTime + 0.45);
+
+            // Third note
+            const osc3 = audioContext.createOscillator();
+            const gain3 = audioContext.createGain();
+            osc3.connect(gain3);
+            gain3.connect(audioContext.destination);
+            osc3.frequency.value = 783.99; // G5
+            gain3.gain.setValueAtTime(0.3, audioContext.currentTime + 0.3);
+            gain3.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.6);
+            osc3.start(audioContext.currentTime + 0.3);
+            osc3.stop(audioContext.currentTime + 0.6);
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            const button = document.getElementById('soundToggle');
+            button.textContent = soundEnabled ? '🔊 เสียง: เปิด' : '🔇 เสียง: ปิด';
+            button.style.background = soundEnabled ? '#10b981' : '#6b7280';
+        }
+
+        function drawWheel() {
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const radius = 180;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            if (items.length === 0) {
+                ctx.fillStyle = '#e0e0e0';
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.fillStyle = '#666';
+                ctx.font = '20px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('เพิ่มรายการเพื่อเริ่มเล่น', centerX, centerY);
+                return;
+            }
+
+            const anglePerItem = (2 * Math.PI) / items.length;
+
+            ctx.save();
+            ctx.translate(centerX, centerY);
+            ctx.rotate(currentRotation);
+
+            items.forEach((item, index) => {
+                const startAngle = index * anglePerItem;
+                const endAngle = startAngle + anglePerItem;
+
+                // Draw slice
+                ctx.fillStyle = colors[index % colors.length];
+                ctx.beginPath();
+                ctx.arc(0, 0, radius, startAngle, endAngle);
+                ctx.lineTo(0, 0);
+                ctx.fill();
+
+                // Draw border
+                ctx.strokeStyle = 'white';
+                ctx.lineWidth = 3;
+                ctx.stroke();
+
+                // Draw text and image
+                ctx.save();
+                ctx.rotate(startAngle + anglePerItem / 2);
+                ctx.textAlign = 'center';
+
+                const itemName = typeof item === 'string' ? item : item.name;
+                const itemImage = (typeof item === 'object' && item.image) ? item.image : null;
+
+                // Draw image if exists
+                if (itemImage) {
+                    ctx.save();
+                    const imgSize = 40;
+                    const imgX = radius * 0.65 - imgSize / 2;
+                    const imgY = -imgSize / 2 - 10;
+
+                    // Draw circular clipped image
+                    ctx.beginPath();
+                    ctx.arc(radius * 0.65, imgY + imgSize / 2, imgSize / 2, 0, 2 * Math.PI);
+                    ctx.clip();
+                    ctx.drawImage(itemImage, imgX, imgY, imgSize, imgSize);
+                    ctx.restore();
+
+                    // Draw white border around image
+                    ctx.strokeStyle = 'white';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.arc(radius * 0.65, imgY + imgSize / 2, imgSize / 2, 0, 2 * Math.PI);
+                    ctx.stroke();
+
+                    // Draw text below image
+                    ctx.fillStyle = 'white';
+                    ctx.font = 'bold 12px Arial';
+                    ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+                    ctx.shadowBlur = 3;
+                    ctx.fillText(itemName, radius * 0.65, imgY + imgSize + 15);
+                } else {
+                    // Draw text only
+                    ctx.fillStyle = 'white';
+                    ctx.font = 'bold 16px Arial';
+                    ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+                    ctx.shadowBlur = 3;
+                    ctx.fillText(itemName, radius * 0.65, 5);
+                }
+
+                ctx.restore();
+            });
+
+            // Draw center circle with image or solid color
+            if (centerImage) {
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(0, 0, 40, 0, 2 * Math.PI);
+                ctx.clip();
+                ctx.drawImage(centerImage, -40, -40, 80, 80);
+                ctx.restore();
+
+                ctx.strokeStyle = '#667eea';
+                ctx.lineWidth = 4;
+                ctx.beginPath();
+                ctx.arc(0, 0, 40, 0, 2 * Math.PI);
+                ctx.stroke();
+            } else {
+                ctx.fillStyle = 'white';
+                ctx.beginPath();
+                ctx.arc(0, 0, 30, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.strokeStyle = '#667eea';
+                ctx.lineWidth = 4;
+                ctx.stroke();
+            }
+
+            ctx.restore();
+        }
+
+        function spinWheel() {
+            if (isSpinning || items.length === 0) return;
+
+            isSpinning = true;
+            spinButton.disabled = true;
+
+            // Play spin sound
+            playSpinSound();
+
+            const spinDuration = 4000;
+            const randomSpins = 5 + Math.random() * 5;
+            const randomAngle = Math.random() * 2 * Math.PI;
+            const totalRotation = randomSpins * 2 * Math.PI + randomAngle;
+
+            const startTime = Date.now();
+            const startRotation = currentRotation;
+            let lastSoundTime = 0;
+
+            function animate() {
+                const currentTime = Date.now();
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / spinDuration, 1);
+
+                // Easing function
+                const easeOut = 1 - Math.pow(1 - progress, 4);
+
+                currentRotation = startRotation + totalRotation * easeOut;
+                drawWheel();
+
+                // Play tick sound periodically while spinning (slowing down)
+                const tickInterval = 100 + (progress * 300); // Slow down ticking
+                if (currentTime - lastSoundTime > tickInterval && progress < 0.95) {
+                    playSpinSound();
+                    lastSoundTime = currentTime;
+                }
+
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                } else {
+                    isSpinning = false;
+                    spinButton.disabled = false;
+                    showWinner();
+                }
+            }
+
+            animate();
+        }
+
+        function showWinner() {
+            // เข็มอยู่ที่ตำแหน่งบน (top) = มุม -Math.PI/2 หรือ 3*Math.PI/2
+            // หาส่วนของวงล้อที่ชี้ไปที่เข็มหลังจากหมุน
+            const pointerAngle = -Math.PI / 2; // เข็มอยู่ด้านบน
+            let winningAngle = pointerAngle - currentRotation;
+
+            // Normalize มุมให้อยู่ระหว่าง 0 ถึง 2π
+            winningAngle = ((winningAngle % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+
+            const anglePerItem = (2 * Math.PI) / items.length;
+            const winnerIndex = Math.floor(winningAngle / anglePerItem);
+            const winner = items[winnerIndex];
+            const winnerText = typeof winner === 'string' ? winner : winner.name;
+
+            // เก็บ index ของผู้ชนะ
+            lastWinnerIndex = winnerIndex;
+
+            // Play win sound
+            playWinSound();
+
+            // บันทึกประวัติ
+            addToHistory(winnerText);
+
+            winnerName.textContent = winnerText;
+            resultModal.style.display = 'flex';
+        }
+
+        function removeWinnerAndClose() {
+            if (lastWinnerIndex >= 0 && lastWinnerIndex < items.length) {
+                const removedItem = items[lastWinnerIndex];
+                const removedName = typeof removedItem === 'string' ? removedItem : removedItem.name;
+
+                items.splice(lastWinnerIndex, 1);
+                lastWinnerIndex = -1;
+
+                updateItemsList();
+                drawWheel();
+                closeModal();
+
+                // แจ้งเตือน
+                setTimeout(() => {
+                    alert(`ลบ "${removedName}" ออกจากรายการแล้ว`);
+                }, 100);
+            } else {
+                closeModal();
+            }
+        }
+
+        function addToHistory(winner) {
+            const now = new Date();
+            const timeString = now.toLocaleString('th-TH', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+
+            spinHistory.unshift({
+                winner: winner,
+                time: timeString
+            });
+
+            // เก็บแค่ 20 รายการล่าสุด
+            if (spinHistory.length > 20) {
+                spinHistory = spinHistory.slice(0, 20);
+            }
+
+            updateHistoryDisplay();
+        }
+
+        function updateHistoryDisplay() {
+            const historyList = document.getElementById('historyList');
+
+            if (spinHistory.length === 0) {
+                historyList.innerHTML = '<p style="color: #999; text-align: center;">ยังไม่มีประวัติการสุ่ม</p>';
+                return;
+            }
+
+            historyList.innerHTML = spinHistory.map((entry, index) => `
+                <div class="history-item">
+                    <span><strong>${entry.winner}</strong></span>
+                    <span class="history-time">${entry.time}</span>
+                </div>
+            `).join('');
+        }
+
+        function clearHistory() {
+            if (spinHistory.length === 0) return;
+
+            if (confirm('คุณต้องการล้างประวัติทั้งหมดใช่หรือไม่?')) {
+                spinHistory = [];
+                updateHistoryDisplay();
+            }
+        }
+
+        function closeModal() {
+            resultModal.style.display = 'none';
+        }
+
+        function uploadCenterImage(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.onload = function() {
+                        centerImage = img;
+                        document.getElementById('centerImagePreview').src = e.target.result;
+                        document.getElementById('centerImagePreview').style.display = 'block';
+                        drawWheel();
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function addItem() {
+            const value = itemInput.value.trim();
+            if (!value) return;
+
+            // ตรวจสอบว่าชื่อซ้ำหรือไม่
+            const isDuplicate = items.some(item => {
+                const itemName = typeof item === 'string' ? item : item.name;
+                return itemName === value;
+            });
+
+            if (isDuplicate) {
+                alert('รายการนี้มีอยู่แล้ว');
+                return;
+            }
+
+            // ดูว่ามีรูปภาพหรือไม่
+            const imageInput = document.getElementById('itemImageInput');
+            if (imageInput.files.length > 0) {
+                const file = imageInput.files[0];
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.onload = function() {
+                        items.push({name: value, image: img});
+                        itemInput.value = '';
+                        imageInput.value = '';
+                        updateItemsList();
+                        drawWheel();
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            } else {
+                items.push({name: value, image: null});
+                itemInput.value = '';
+                updateItemsList();
+                drawWheel();
+            }
+        }
+
+        function addBulkItems() {
+            const bulkInput = document.getElementById('bulkInput');
+            const text = bulkInput.value.trim();
+
+            if (!text) return;
+
+            // แยกรายการโดยรองรับหลายรูปแบบ: newline, comma, tab, semicolon
+            let newItems = text.split(/[\n\r\t,;]+/)
+                .map(item => item.trim())
+                .filter(item => item.length > 0);
+
+            // เพิ่มเฉพาะรายการที่ยังไม่มี
+            let addedCount = 0;
+            newItems.forEach(itemName => {
+                const isDuplicate = items.some(item => {
+                    const name = typeof item === 'string' ? item : item.name;
+                    return name === itemName;
+                });
+
+                if (!isDuplicate) {
+                    items.push({name: itemName, image: null});
+                    addedCount++;
+                }
+            });
+
+            // แสดงผลลัพธ์
+            if (addedCount > 0) {
+                bulkInput.value = '';
+                updateItemsList();
+                drawWheel();
+                alert(`เพิ่มรายการสำเร็จ ${addedCount} รายการ`);
+            } else {
+                alert('ไม่มีรายการใหม่ที่จะเพิ่ม (รายการซ้ำหรือว่างเปล่า)');
+            }
+        }
+
+        function deleteItem(index) {
+            items.splice(index, 1);
+            updateItemsList();
+            drawWheel();
+        }
+
+        function updateItemsList() {
+            itemsList.innerHTML = items.map((item, index) => {
+                const itemName = typeof item === 'string' ? item : item.name;
+                const hasImage = (typeof item === 'object' && item.image) ? '🖼️ ' : '';
+
+                return `
+                    <div class="item">
+                        <span class="item-content">${hasImage}${itemName}</span>
+                        <button class="delete-button" onclick="deleteItem(${index})">ลบ</button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                addItem();
+            }
+        }
+
+        function loadPreset(type) {
+            switch(type) {
+                case 'food':
+                    items = [
+                        {name: 'ข้าวผัด', image: null},
+                        {name: 'ผัดไทย', image: null},
+                        {name: 'ต้มยำกุ้ง', image: null},
+                        {name: 'ส้มตำ', image: null},
+                        {name: 'ข้าวมันไก่', image: null},
+                        {name: 'ก๋วยเตี๋ยว', image: null},
+                        {name: 'แกงเขียวหวาน', image: null},
+                        {name: 'ผัดกะเพรา', image: null},
+                        {name: 'พิซซ่า', image: null},
+                        {name: 'สเต็กเนื้อ', image: null},
+                        {name: 'สปาเก็ตตี้', image: null},
+                        {name: 'ซูชิ', image: null},
+                        {name: 'เบอร์เกอร์', image: null},
+                        {name: 'ไก่ทอด', image: null},
+                        {name: 'สลัด', image: null}
+                    ];
+                    break;
+                case 'coinflip':
+                    items = [
+                        {name: 'หัว 👑', image: null},
+                        {name: 'ก้อย 🦅', image: null}
+                    ];
+                    break;
+                case 'yesno':
+                    items = [
+                        {name: 'ใช่ ✅', image: null},
+                        {name: 'ไม่ใช่ ❌', image: null}
+                    ];
+                    break;
+                case 'numbers':
+                    items = [];
+                    for (let i = 0; i <= 9; i++) {
+                        items.push({name: i.toString(), image: null});
+                    }
+                    break;
+                case 'lottery':
+                    items = [];
+                    for (let i = 0; i <= 99; i++) {
+                        items.push({name: i.toString().padStart(2, '0'), image: null});
+                    }
+                    break;
+                case 'lucky100':
+                    items = [];
+                    for (let i = 1; i <= 100; i++) {
+                        items.push({name: i.toString(), image: null});
+                    }
+                    break;
+                case 'colors':
+                    items = [
+                        {name: 'แดง 🔴', image: null},
+                        {name: 'ส้ม 🟠', image: null},
+                        {name: 'เหลือง 🟡', image: null},
+                        {name: 'เขียว 🟢', image: null},
+                        {name: 'ฟ้า 🔵', image: null},
+                        {name: 'น้ำเงิน 🔵', image: null},
+                        {name: 'ม่วง 🟣', image: null},
+                        {name: 'ชมพู 🩷', image: null}
+                    ];
+                    break;
+                case 'zodiac':
+                    items = [
+                        {name: 'เมษ ♈', image: null},
+                        {name: 'พฤษภ ♉', image: null},
+                        {name: 'เมถุน ♊', image: null},
+                        {name: 'กรกฎ ♋', image: null},
+                        {name: 'สิงห์ ♌', image: null},
+                        {name: 'กันย์ ♍', image: null},
+                        {name: 'ตุล ♎', image: null},
+                        {name: 'พิจิก ♏', image: null},
+                        {name: 'ธนู ♐', image: null},
+                        {name: 'มกร ♑', image: null},
+                        {name: 'กุมภ์ ♒', image: null},
+                        {name: 'มีน ♓', image: null}
+                    ];
+                    break;
+                case 'days':
+                    items = [
+                        {name: 'จันทร์ 🌙', image: null},
+                        {name: 'อังคาร 🔥', image: null},
+                        {name: 'พุธ 💚', image: null},
+                        {name: 'พฤหัสบดี 💛', image: null},
+                        {name: 'ศุกร์ 💙', image: null},
+                        {name: 'เสาร์ 💜', image: null},
+                        {name: 'อาทิตย์ ❤️', image: null}
+                    ];
+                    break;
+            }
+            updateItemsList();
+            drawWheel();
+        }
+
+        // Event listeners
+        spinButton.addEventListener('click', spinWheel);
+
+        // Initialize
+        updateItemsList();
+        drawWheel();
+    </script>
+</body>
+</html>

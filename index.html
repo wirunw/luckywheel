@@ -745,6 +745,24 @@
                 <button class="preset-button" onclick="loadPreset('yesno')">❓ ใช่/ไม่ใช่</button>
             </div>
 
+            <div class="section-title" style="margin-top: 20px;">📝 Custom Presets ของคุณ:</div>
+            <div class="preset-buttons" id="customPresetsContainer">
+                <!-- Custom presets will be loaded here -->
+            </div>
+            <button class="preset-button" onclick="createNewCustomPreset()" style="width: 100%; background: #10b981; margin-top: 10px;">✨ สร้างหัวข้อใหม่</button>
+
+            <div class="image-upload-section" id="customTitleSection" style="display: none;">
+                <div class="section-title">📌 ชื่อหัวข้อ:</div>
+                <div class="input-group">
+                    <input type="text" id="customTitleInput" placeholder="ตั้งชื่อหัวข้อ... เช่น งานที่ต้องทำวันนี้">
+                    <button class="add-button" onclick="saveCustomTitle()">บันทึก</button>
+                </div>
+                <div style="margin-top: 10px; display: flex; gap: 10px;">
+                    <button class="bulk-add-button" onclick="saveAsCustomPreset()" style="flex: 1;">💾 บันทึกเป็น Preset</button>
+                    <button class="clear-history-button" onclick="cancelCustomTitle()" style="flex: 1; margin: 0;">❌ ยกเลิก</button>
+                </div>
+            </div>
+
             <div class="section-title">เพิ่มรายการทีละรายการ:</div>
             <div class="input-group">
                 <input type="text" id="itemInput" placeholder="ใส่รายการ..." onkeypress="handleKeyPress(event)">
@@ -824,6 +842,8 @@
         let lastWinnerIndex = -1;
         let soundEnabled = true;
         let audioContext = null;
+        let customPresets = [];
+        let currentCustomTitle = '';
 
         const colors = ['#3b82f6', '#2563eb', '#60a5fa', '#93c5fd', '#06b6d4', '#22d3ee', '#67e8f9', '#a5f3fc'];
 
@@ -1544,11 +1564,140 @@
             drawWheel();
         }
 
+        // Custom Preset Functions
+        function loadCustomPresets() {
+            try {
+                const stored = localStorage.getItem('luckyWheelCustomPresets');
+                if (stored) {
+                    customPresets = JSON.parse(stored);
+                    renderCustomPresets();
+                }
+            } catch (e) {
+                console.error('Error loading custom presets:', e);
+            }
+        }
+
+        function saveCustomPresetsToStorage() {
+            try {
+                localStorage.setItem('luckyWheelCustomPresets', JSON.stringify(customPresets));
+            } catch (e) {
+                console.error('Error saving custom presets:', e);
+            }
+        }
+
+        function renderCustomPresets() {
+            const container = document.getElementById('customPresetsContainer');
+            if (customPresets.length === 0) {
+                container.innerHTML = '<p style="color: #999; text-align: center; padding: 10px; font-size: 0.9em;">ยังไม่มี Custom Preset</p>';
+                return;
+            }
+
+            container.innerHTML = customPresets.map((preset, index) => `
+                <div style="display: flex; align-items: center; gap: 5px; margin-bottom: 8px;">
+                    <button class="preset-button" onclick="loadCustomPreset(${index})" style="flex: 1; background: #10b981;">
+                        ${preset.icon || '📝'} ${preset.title}
+                    </button>
+                    <button onclick="deleteCustomPreset(${index})" style="padding: 8px 12px; background: #ef4444; color: white; border: none; border-radius: 6px; cursor: pointer;">🗑️</button>
+                </div>
+            `).join('');
+        }
+
+        function createNewCustomPreset() {
+            items = [];
+            currentCustomTitle = '';
+            document.getElementById('customTitleInput').value = '';
+            document.getElementById('customTitleSection').style.display = 'block';
+            updateTitle('✨ สร้างหัวข้อใหม่');
+            updateItemsList();
+            drawWheel();
+
+            // Scroll to the custom title section
+            document.getElementById('customTitleSection').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function saveCustomTitle() {
+            const titleInput = document.getElementById('customTitleInput');
+            const title = titleInput.value.trim();
+
+            if (!title) {
+                alert('กรุณาใส่ชื่อหัวข้อ');
+                return;
+            }
+
+            currentCustomTitle = title;
+            updateTitle('📝 ' + title);
+            alert('บันทึกชื่อหัวข้อแล้ว! ตอนนี้เพิ่มรายการต่างๆ เข้าไปได้เลย');
+        }
+
+        function saveAsCustomPreset() {
+            if (!currentCustomTitle) {
+                alert('กรุณากดปุ่ม "บันทึก" เพื่อตั้งชื่อหัวข้อก่อน');
+                return;
+            }
+
+            if (items.length === 0) {
+                alert('กรุณาเพิ่มรายการอย่างน้อย 1 รายการ');
+                return;
+            }
+
+            // Ask for icon
+            const icon = prompt('ใส่ emoji สำหรับ preset นี้ (เว้นว่างไว้ถ้าไม่ต้องการ):', '📝');
+
+            const newPreset = {
+                id: Date.now(),
+                title: currentCustomTitle,
+                icon: icon || '📝',
+                items: items.map(item => ({
+                    name: item.name,
+                    image: null // Don't save images to localStorage (too large)
+                }))
+            };
+
+            customPresets.push(newPreset);
+            saveCustomPresetsToStorage();
+            renderCustomPresets();
+
+            document.getElementById('customTitleSection').style.display = 'none';
+            alert(`บันทึก "${currentCustomTitle}" เป็น Preset แล้ว!`);
+        }
+
+        function cancelCustomTitle() {
+            if (confirm('ยกเลิกการสร้างหัวข้อใหม่?')) {
+                document.getElementById('customTitleSection').style.display = 'none';
+                currentCustomTitle = '';
+                loadPreset('food'); // Load default preset
+            }
+        }
+
+        function loadCustomPreset(index) {
+            if (index < 0 || index >= customPresets.length) return;
+
+            const preset = customPresets[index];
+            items = preset.items.map(item => ({...item}));
+            currentCustomTitle = preset.title;
+            updateTitle((preset.icon || '📝') + ' ' + preset.title);
+            document.getElementById('customTitleSection').style.display = 'none';
+            updateItemsList();
+            drawWheel();
+        }
+
+        function deleteCustomPreset(index) {
+            if (index < 0 || index >= customPresets.length) return;
+
+            const preset = customPresets[index];
+            if (confirm(`ลบ "${preset.title}" ออกจาก Custom Presets?`)) {
+                customPresets.splice(index, 1);
+                saveCustomPresetsToStorage();
+                renderCustomPresets();
+            }
+        }
+
         // Event listeners
         spinButton.addEventListener('click', spinWheel);
         canvas.addEventListener('click', spinWheel); // Make canvas clickable to spin
 
         // Initialize
+        loadCustomPresets(); // Load custom presets from localStorage
         updateItemsList();
         updateCanvasSize(); // Set initial canvas size based on screen
         drawWheel();
